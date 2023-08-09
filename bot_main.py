@@ -235,7 +235,8 @@ async def invite(ctx: commands.Context, channel_name: str, *extra_users: discord
 
 async def assert_mod(ctx):
     guild = bot.get_guild(int(config["guild"]))
-    mod_role = discord.utils.get(guild.roles, name="Moderator")
+    mod_name = config["bot_admins"]
+    mod_role = discord.utils.get(guild.roles, name=mod_name)
     is_mod = discord.utils.get(ctx.author.roles, id=mod_role.id)
     if not is_mod:
         await ctx.send(
