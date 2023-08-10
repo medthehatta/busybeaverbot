@@ -3,6 +3,7 @@ from contextlib import suppress
 import json
 from uuid import uuid1
 import random
+import re
 
 from cytoolz import partition_all
 from cytoolz import valmap
@@ -271,6 +272,28 @@ async def archive(ctx: commands.Context, channel_name: str):
     )
     await text_channel.edit(category=archive_category)
     await voice_channel.delete()
+
+
+async def emit_bgg_url(message):
+    if (matches := re.finditer(r'\[(.{,50}?)\]', message.content)):
+        from scratch import bgg_query
+        from scratch import _items
+        for match in matches:
+            name = match.group(1)
+            items = _items(bgg_query(name))
+            if items:
+                item = items[0]
+                url = f"https://boardgamegeek.com/{item['href'].lstrip('/')}"
+                await message.channel.send(url)
+
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if "[" in message.content:
+        await emit_bgg_url(message)
 
 
 if __name__ == "__main__":
