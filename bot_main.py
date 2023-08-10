@@ -279,7 +279,8 @@ async def archive(ctx: commands.Context, channel_name: str):
 async def stop(ctx: commands.Context):
     await assert_mod(ctx)
     await ctx.send("Stopping...")
-    await bot.logout()
+    await bot.close()
+    exit()
 
 
 async def emit_bgg_url(message):
