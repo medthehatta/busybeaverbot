@@ -30,11 +30,18 @@ bot = commands.Bot(
 
 @bot.event
 async def on_ready():
+    bot_version = get_version()
+    config_version = get_config_version()
+
     guild = bot.get_guild(int(config["guild"]))
     diag = discord.utils.get(guild.channels, name=config["diagnostics"])
-    await diag.send(
-        f"Started {get_version()} (config: {get_config_version()})"
+    embed = discord.Embed(
+        title="Started",
+        description=f"Started {bot_version} (config: {config_version})",
     )
+    embed.add_field(name="Bot", value=bot_version)
+    embed.add_field(name="Config", value=config_version)
+    await diag.send(embed)
     print(f"{bot.user} ready.")
 
 
