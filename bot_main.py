@@ -32,7 +32,9 @@ bot = commands.Bot(
 async def on_ready():
     guild = bot.get_guild(int(config["guild"]))
     diag = discord.utils.get(guild.channels, name=config["diagnostics"])
-    await diag.send(f"Started version {get_version()}")
+    await diag.send(
+        f"Started {get_version()} (config: {get_config_version()})"
+    )
     print(f"{bot.user} ready.")
 
 
@@ -46,7 +48,7 @@ def role_index(guild):
 
 async def send_long(obj, text):
     for fragment in ("".join(x) for x in partition_all(1800, text)):
-        await obj.send(fragment) 
+        await obj.send(fragment)
 
 
 def mention_list(objects):
@@ -296,9 +298,19 @@ def get_version():
     return result
 
 
+def get_config_version():
+    result = (
+        subprocess.check_output(["sha1sum", "config.json"])
+        .decode("utf-8")
+        .strip()
+    )
+    (sha1sum, _) = result.split(" ", 1)
+    return sha1sum
+
+
 @bot.command()
 async def version(ctx: commands.Context):
-    await ctx.send(get_version())
+    await ctx.send(f"{get_version()} (config: {get_config_version()})")
 
 
 async def emit_bgg_url(message):
