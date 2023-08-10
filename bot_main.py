@@ -41,7 +41,7 @@ async def on_ready():
     )
     embed.add_field(name="Bot", value=bot_version)
     embed.add_field(name="Config", value=config_version)
-    await diag.send(embed)
+    await diag.send(embed=embed)
     print(f"{bot.user} ready.")
 
 
