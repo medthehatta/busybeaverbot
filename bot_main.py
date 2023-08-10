@@ -28,6 +28,16 @@ bot = commands.Bot(
 )
 
 
+def quick_embed(title, message, fields=None, footer=None):
+    fields = fields or {}
+    embed = discord.Embed(title=title, description=message)
+    for (field, value) in fields.items():
+        embed.add_field(name=field, value=value, inline=False)
+    if footer is not None:
+        embed.add_footer(text=footer)
+    return embed
+
+
 @bot.event
 async def on_ready():
     bot_version = get_version()
@@ -35,12 +45,14 @@ async def on_ready():
 
     guild = bot.get_guild(int(config["guild"]))
     diag = discord.utils.get(guild.channels, name=config["diagnostics"])
-    embed = discord.Embed(
+    embed = quick_embed(
         title="Started",
-        description=f"Started {bot_version} (config: {config_version})",
+        message=f"Started {bot_version} (config: {config_version})",
+        fields={
+            "Bot": bot_version,
+            "Config": config_version,
+        },
     )
-    embed.add_field(name="Bot", value=bot_version)
-    embed.add_field(name="Config", value=config_version)
     await diag.send(embed=embed)
     print(f"{bot.user} ready.")
 
