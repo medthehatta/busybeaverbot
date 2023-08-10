@@ -30,7 +30,10 @@ bot = commands.Bot(
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    guild = bot.get_guild(int(config["guild"]))
+    diag = discord.utils.get(guild.channels, name=config["diagnostics"])
+    await diag.send(f"Started version {get_version()}")
+    print(f"{bot.user} ready.")
 
 
 def role_index(guild):
@@ -284,14 +287,18 @@ async def stop(ctx: commands.Context):
     exit()
 
 
-@bot.command()
-async def version(ctx: commands.Context):
+def get_version():
     result = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"])
+        subprocess.check_output(["git", "log", "--oneline", "HEAD~3.."])
         .decode("utf-8")
         .strip()
     )
-    await ctx.send(result)
+    return result
+
+
+@bot.command()
+async def version(ctx: commands.Context):
+    await ctx.send(get_version())
 
 
 async def emit_bgg_url(message):
