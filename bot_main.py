@@ -275,6 +275,13 @@ async def archive(ctx: commands.Context, channel_name: str):
     await voice_channel.delete()
 
 
+@bot.command()
+async def stop(ctx: commands.Context):
+    await assert_mod(ctx)
+    await ctx.send("Stopping...")
+    await bot.logout()
+
+
 async def emit_bgg_url(message):
     if (matches := re.finditer(r'\[(.{,50}?)\]', message.content)):
         from scratch import bgg_query
