@@ -19,6 +19,7 @@ with open("config.json", "r") as f:
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.reactions = True
 
 bot = commands.Bot(
     command_prefix=commands.when_mentioned_or("!"),
@@ -294,6 +295,9 @@ async def on_message(message):
 
     if "[" in message.content:
         await emit_bgg_url(message)
+
+    else:
+        await bot.process_commands(message)
 
 
 if __name__ == "__main__":
