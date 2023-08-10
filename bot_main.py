@@ -45,6 +45,7 @@ async def on_ready():
 
     bot_version = get_version()
     config_version = get_config_version()
+    location = get_host()
     admins = discord.utils.get(guild.roles, name=config["bot_admins"])
 
     embed = quick_embed(
@@ -53,6 +54,7 @@ async def on_ready():
         fields={
             "Bot Version": bot_version,
             "Config Version": config_version,
+            "Location": location,
             "Admin Role": admins.mention,
         },
     )
@@ -307,7 +309,11 @@ async def archive(ctx: commands.Context, channel_name: str):
 @bot.command()
 async def stop(ctx: commands.Context):
     await assert_mod(ctx)
-    await ctx.send("Stopping...")
+    embed = quick_embed(
+        title="Stopping",
+        message=f"{bot.user.mention} powering down...",
+    )
+    await ctx.send(embed=embed)
     await bot.close()
     exit()
 
@@ -329,6 +335,20 @@ def get_config_version():
     )
     (sha1sum, _) = result.split(" ", 1)
     return sha1sum
+
+
+def get_host():
+    result = (
+        subprocess.check_output(["hostname"])
+        .decode("utf-8")
+        .strip()
+    )
+    if "mancer" in result:
+        return "mancer"
+    elif "DESKTOP-" in result:
+        return "desktop"
+    else:
+        return "unknown"
 
 
 @bot.command()
