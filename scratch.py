@@ -1,17 +1,21 @@
 import json
-
-import discord
-from discord.ext import commands
+import requests
 
 
-import pydoc
-pydoc.pager = pydoc.plainpager
+def bgg_query(query):
+    return requests.get(
+        "https://boardgamegeek.com/search/boardgame",
+        params={
+            "q": query,
+            "nosession": 1,
+            "showcount": 5,
+        },
+        headers={
+            "Accept": "application/json",
+        },
+    )
 
 
-intents = discord.Intents.default()
-intents.message_content = True
-
-with open("config.json", "r") as f:
-    config = json.load(f)
-
-bot = commands.Bot(command_prefix="!", intents=intents)
+def _items(res):
+    res.raise_for_status()
+    return res.json().get("items")
