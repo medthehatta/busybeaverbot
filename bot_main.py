@@ -289,7 +289,7 @@ async def stop(ctx: commands.Context):
 
 def get_version():
     result = (
-        subprocess.check_output(["git", "log", "--oneline", "HEAD~3.."])
+        subprocess.check_output(["git", "rev-parse", "HEAD"])
         .decode("utf-8")
         .strip()
     )
