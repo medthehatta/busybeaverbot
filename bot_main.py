@@ -287,7 +287,7 @@ async def stop(ctx: commands.Context):
 @bot.command()
 async def version(ctx: commands.Context):
     result = (
-        subprocess.check_output(["git", "log", "--oneline", "HEAD~3.."])
+        subprocess.check_output(["git", "rev-parse", "HEAD"])
         .decode("utf-8")
         .strip()
     )
