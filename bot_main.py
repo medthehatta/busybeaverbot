@@ -28,7 +28,7 @@ bot = commands.Bot(
 )
 
 
-def quick_embed(title, message, fields=None, footer=None):
+def quick_embed(title, message=None, fields=None, footer=None):
     fields = fields or {}
     embed = discord.Embed(title=title, description=message)
     for (field, value) in fields.items():
@@ -40,20 +40,24 @@ def quick_embed(title, message, fields=None, footer=None):
 
 @bot.event
 async def on_ready():
-    bot_version = get_version()
-    config_version = get_config_version()
-
     guild = bot.get_guild(int(config["guild"]))
     diag = discord.utils.get(guild.channels, name=config["diagnostics"])
+
+    bot_version = get_version()
+    config_version = get_config_version()
+    admins = discord.utils.get(guild.roles, name=config["bot_admins"])
+
     embed = quick_embed(
-        title="Started",
-        message=f"Started {bot_version} (config: {config_version})",
+        title="Started BusyBeaverBot",
+        message=f":wave: Hello!  This is {bot.user.mention}.",
         fields={
-            "Bot": bot_version,
-            "Config": config_version,
+            "Bot Version": bot_version,
+            "Config Version": config_version,
+            "Admin Role": admins.mention,
         },
     )
     await diag.send(embed=embed)
+
     print(f"{bot.user} ready.")
 
 
