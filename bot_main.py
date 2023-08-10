@@ -4,6 +4,7 @@ import json
 from uuid import uuid1
 import random
 import re
+import subprocess
 
 from cytoolz import partition_all
 from cytoolz import valmap
@@ -281,6 +282,16 @@ async def stop(ctx: commands.Context):
     await ctx.send("Stopping...")
     await bot.close()
     exit()
+
+
+@bot.command()
+async def version(ctx: commands.Context):
+    result = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"])
+        .decode("utf-8")
+        .strip()
+    )
+    await ctx.send(result)
 
 
 async def emit_bgg_url(message):
