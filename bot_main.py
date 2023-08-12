@@ -353,7 +353,10 @@ def get_host():
 
 @bot.command()
 async def version(ctx: commands.Context):
-    await ctx.send(f"{get_version()} (config: {get_config_version()})")
+    await ctx.send(
+        f"{get_version()} (config: {get_config_version()}) "
+        f"@ {get_host()}"
+    )
 
 
 async def emit_bgg_url(message):
