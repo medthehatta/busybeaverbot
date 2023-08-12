@@ -311,7 +311,7 @@ async def stop(ctx: commands.Context):
     await assert_mod(ctx)
     embed = quick_embed(
         title="Stopping",
-        message=f"{bot.user.mention} powering down...",
+        message=f"{bot.user.mention} ({get_host()}) powering down...",
     )
     await ctx.send(embed=embed)
     await bot.close()
