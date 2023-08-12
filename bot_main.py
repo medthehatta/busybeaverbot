@@ -82,7 +82,7 @@ def mention_list(objects):
 
 @bot.command()
 async def find(ctx: commands.Context, *users: discord.User):
-    guild = bot.get_guild(int(config["guild"]))
+    guild = ctx.guild
     roles = role_index(guild)
 
     desired_users = set(users)
@@ -120,7 +120,7 @@ async def find(ctx: commands.Context, *users: discord.User):
 async def create(ctx: commands.Context, name: str, *users: discord.Member):
     await assert_mod(ctx)
 
-    guild = bot.get_guild(int(config["guild"]))
+    guild = ctx.guild
     result = await create_group(guild, name)
     await admit_users_to_role(result["role"], users)
 
@@ -244,7 +244,7 @@ async def admit_users_to_role(role: discord.Role, users: discord.Member):
 async def invite(ctx: commands.Context, channel_name: str, *extra_users: discord.Member):
     await assert_mod(ctx)
 
-    guild = bot.get_guild(int(config["guild"]))
+    guild = ctx.guild
 
     for channel in guild.channels:
         if isinstance(channel, discord.VoiceChannel):
@@ -267,7 +267,7 @@ async def invite(ctx: commands.Context, channel_name: str, *extra_users: discord
 
 
 async def assert_mod(ctx):
-    guild = bot.get_guild(int(config["guild"]))
+    guild = ctx.guild
     mod_name = config["bot_admins"]
     mod_role = discord.utils.get(guild.roles, name=mod_name)
     is_mod = discord.utils.get(ctx.author.roles, id=mod_role.id)
@@ -282,7 +282,7 @@ async def assert_mod(ctx):
 async def archive(ctx: commands.Context, channel_name: str):
     await assert_mod(ctx)
 
-    guild = bot.get_guild(int(config["guild"]))
+    guild = ctx.guild
 
     for channel in guild.channels:
         if isinstance(channel, discord.VoiceChannel):
