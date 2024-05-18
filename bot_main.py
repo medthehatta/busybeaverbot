@@ -443,7 +443,10 @@ class SeverityThrottler:
         return (current_sev, escalated)
 
 
-lost_and_found_admonish = SeverityThrottler(cooldown=20, escalation_interval=5)
+lost_and_found_admonish = SeverityThrottler(
+    cooldown=config["lost-and-found-admonish-cooldown"],
+    escalation_interval=config["lost-and-found-admonish-escalate-interval"],
+)
 
 
 @bot.event
