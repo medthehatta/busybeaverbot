@@ -5,6 +5,7 @@ from uuid import uuid1
 import random
 import re
 import subprocess
+import time
 
 from cytoolz import partition_all
 from cytoolz import valmap
@@ -359,6 +360,12 @@ async def version(ctx: commands.Context):
     )
 
 
+@bot.command()
+async def embed(ctx: commands.Context, title, message, *, fields = None):
+    fields = fields or "{}"
+    await ctx.send(embed=quick_embed(title, message, json.loads(fields)))
+
+
 async def emit_bgg_url(message):
     if (matches := re.finditer(r'\[(.{,50}?)\]', message.content)):
         from scratch import bgg_query
@@ -377,11 +384,82 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    guild = bot.get_guild(int(config["guild"]))
+    diag = discord.utils.get(guild.channels, name=config["diagnostics"])
+    laf = discord.utils.get(guild.channels, name=config["lost-and-found"])
+
     if "[" in message.content:
         await emit_bgg_url(message)
 
+    elif message.channel.id == laf.id:
+        await lost_and_found_event(message)
+
     else:
         await bot.process_commands(message)
+
+
+admonishments = [
+    (
+        "Note: this channel is for help getting into a dedicated chat "
+        "channel.  Please move conversation to dedicated chat once you're "
+        "able"
+    ),
+    (
+        "Hey {author_mention}, note that this channel is for help getting "
+        "into a dedicated chat channel.  Please move conversation to "
+        "dedicated chat once you're able."
+    ),
+]
+
+
+class SeverityThrottler:
+
+    def __init__(self, cooldown=20, escalation_interval=5):
+        self.escalation_interval = escalation_interval
+        self.cooldown = cooldown
+        self.severity = 0
+        self.last_escalation = 0
+        self.last_incident = time.time()
+
+    def incident(self):
+        now = time.time()
+        delta = now - self.last_incident
+
+        cooled_intervals = delta / self.cooldown
+        self.severity = max(0, self.severity - int(cooled_intervals))
+        current_sev = self.severity
+
+        self.last_incident = now
+
+        escalated = False
+        if (
+            cooled_intervals < 1 and
+            now - self.last_escalation > self.escalation_interval
+        ):
+            self.severity += 1
+            self.last_escalation = now
+            escalated = True
+
+        return (current_sev, escalated)
+
+
+lost_and_found_admonish = SeverityThrottler(cooldown=20, escalation_interval=5)
+
+
+@bot.event
+async def lost_and_found_event(message):
+    guild = bot.get_guild(int(config["guild"]))
+    laf = discord.utils.get(guild.channels, name=config["lost-and-found"])
+
+    (severity, escalated) = lost_and_found_admonish.incident()
+
+    if escalated:
+        msg_sev = min(len(admonishments)-1, severity)
+        await laf.send(
+            admonishments[msg_sev].format(
+                author_mention=message.author.mention,
+            )
+        )
 
 
 if __name__ == "__main__":
