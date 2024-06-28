@@ -388,10 +388,7 @@ async def on_message(message):
     diag = discord.utils.get(guild.channels, name=config["diagnostics"])
     laf = discord.utils.get(guild.channels, name=config["lost-and-found"])
 
-    if "[" in message.content:
-        await emit_bgg_url(message)
-
-    elif message.channel.id == laf.id:
+    if message.channel.id == laf.id:
         await lost_and_found_event(message)
 
     else:
